@@ -14,10 +14,12 @@ SEF HEADER[] PAYLOAD[] SEF
 
 #### Byte stuffing
 There are two special bytes: SEF (start/ending flag) and DLE (data link escape). The SEF is used to delimit a packet's data (including header and payload) and the DLE byte is used to escape a data byte so it's not erroneously parsed as a *special byte*.  
+
 | Special byte | Hex |
 |--------------|:---:|
 | SEF          |  55 |
 | DLE          |  DD |
+
 To illustrate this, suppose you want to send the following data:
 
 ```
@@ -36,6 +38,7 @@ FLAGS
 
 CODE
  : Meaning of the packet
+ 
 | Code        | Hex | Payload |
 |-------------|:---:|---------|
 | OK          |  01 |         |
