@@ -9,35 +9,30 @@ QkProtocol: Specification
 ### Packet Structure
 
 ```
-SEF HEADER[] PAYLOAD[] SEF
+HEADER[] PAYLOAD[]
 ```
 
-#### Byte stuffing
-There are two special bytes: SEF (start/ending flag) and DLE (data link escape). The SEF is used to delimit a packet's data (including header and payload) and the DLE byte is used to escape a data byte so it's not erroneously parsed as a *special byte*.  
+#### Header
 
-| Special byte | Hex |
-|--------------|:---:|
-| SEF          |  55 |
-| DLE          |  DD |
-
-To illustrate this, suppose you want to send the following data:
 
 ```
-[01] [02] [03]
-```
-To delimit the packet we use the SEF byte, so we get:
-```
-[55] [01] [02] [03] [55]
+FLAGS[2] ID[1] CODE[1] ADDRESS[]
 ```
 
-SEF
-: Start/ending flag byte, delimits a packet
+| Flags        |
+|--------------|
+|  RSVD[5]     |
+|  DEST[3]     |
+|  RSVD[1]     |
+|  SRC[3]      |
+|  RSVD[1]     |
+|  FRAG[1]     |
+|  LASTFRAG[1] |
+|  ADDRESS[1]  |
 
-FLAGS
-: Control flags
 
-CODE
- : Meaning of the packet
+ #### Payload
+
  
 | Code        | Hex | Payload |
 |-------------|:---:|---------|
@@ -63,3 +58,43 @@ CODE
 | SET_NAME    |  34 |         |
 | SET_SAMP    |  36 |         |
 | SET_CONFIG  |  3C |         |
+
+
+### Byte stuffing
+There are two special bytes: SEF (start/ending flag) and DLE (data link escape). The SEF is used to delimit a packet's data (including header and payload) and the DLE byte is used to escape a data byte so it's not erroneously parsed as a *special byte*.  
+
+| Special byte | Hex |
+|--------------|:---:|
+| SEF          |  55 |
+| DLE          |  DD |
+
+To illustrate this, suppose you want to send the following packet:
+
+```
+[01] [02] [03]
+```
+To delimit the packet's data we use the SEF byte, so we get:
+
+```
+[55] [01] [02] [03] [55]
+```
+
+However, it may easily happen that the flag byte occurs in the data, such as in this packet:
+
+```
+[55] [01] [02] [55] [03] [55]
+```
+
+In this case, the second ``[05]`` will be erroneously interpreted as the end of the packet, so a DLE is inserted before it:
+
+```
+[55] [01] [02] [DD] [55] [03] [55]
+```
+
+The escape byte tells the receiver that the byte following it it's not a *special byte*. Hence, there are two bytes that must be escaped: SEF and DLE. This means that when DLE occurs in the packet's data it is also preceeded by the escape byte:
+
+```
+[55] [01] [02] [DD] [DD] [03] [55]
+```
+
+
