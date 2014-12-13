@@ -16,19 +16,17 @@ HEADER[] PAYLOAD[]
 
 
 ```
-FLAGS[2] ID[1] CODE[1] ADDRESS[]
+FLAGS[2] ID[1] CODE[1]
 ```
 
-| Flags        |
-|--------------|
-|  RSVD[5]     |
-|  DEST[3]     |
-|  RSVD[1]     |
-|  SRC[3]      |
-|  RSVD[1]     |
-|  FRAG[1]     |
-|  LASTFRAG[1] |
-|  ADDRESS[1]  |
+```
+FLAGS.1 = RSVD[1] SRC[3] RSVD[1] FRAG[1] LASTFRAG[1] ADDRESS[1]
+FLAGS.2 = RSVD[5] DEST[3]
+```
+
+| Field | Value      |
+|-------|------------|
+| SRC   |  0 - QkHost<br>1 - QkDevice<br>2 - QkComm |
 
 
  #### Payload
