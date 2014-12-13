@@ -9,28 +9,30 @@ QkProtocol: Specification
 ### Packet Structure
 
 ```
-HEADER[] PAYLOAD[]
+HEADER[4] PAYLOAD[]
 ```
 
 #### Header
-
 
 ```
 FLAGS[2] ID[1] CODE[1]
 ```
 
 ```
-FLAGS.1 = RSVD[1] SRC[3] RSVD[1] FRAG[1] LASTFRAG[1] ADDRESS[1]
+FLAGS.1 = RSVD[1] SRC[3] RSVD[1] FRAG[1] LASTFRAG[1] RSVD[1]
 FLAGS.2 = RSVD[5] DEST[3]
 ```
 
-| Field | Value      |
-|-------|------------|
-| SRC   |  0 - QkHost<br>1 - QkDevice<br>2 - QkComm |
+| Field    | Value                                          |
+|----------|------------------------------------------------|
+| SRC      | 0 - QkHost<br>1 - QkDevice<br>2 - QkComm       |
+| DEST     | 0 - QkHost<br>1 - QkDevice<br>2 - QkComm       |
+| FRAG     | 0 - Not fragmented<br>1 - Fragmented           |
+| LASTFRAG | 0 - Not the last fragment<br>1 - Last fragment |
 
 
- #### Payload
-
+#### Payload
+ 
  
 | Code        | Hex | Payload |
 |-------------|:---:|---------|
@@ -59,6 +61,7 @@ FLAGS.2 = RSVD[5] DEST[3]
 
 
 ### Byte stuffing
+
 There are two special bytes: SEF (start/ending flag) and DLE (data link escape). The SEF is used to delimit a packet's data (including header and payload) and the DLE byte is used to escape a data byte so it's not erroneously parsed as a *special byte*.  
 
 | Special byte | Hex |
