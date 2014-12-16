@@ -1,0 +1,178 @@
+=====================================================================
+ QkProtocol specification (version 0.1-DRAFT) | qkthings.com
+=====================================================================
+
+1. Packet structure
+
+	HEADER[4] PAYLOAD[*]
+
+	The least significant byte (LSB) is sent first.
+
+2. Header
+
+	FLAGS[2] ID[1] CODE[1]
+	
+						 FLAGS bits
+	------------------------------------------------------
+	 Bits	Name		Description
+	------------------------------------------------------
+	 [0] 				(reserved)
+	 [1]	LASTFRAG 	0 - Not the last fragment
+	 				 	1 - Last fragment (always 1 if FRAG=0) 
+	 [2]	FRAG 		0 - Not fragmented
+	 					1 - Fragmented
+	 [3]				(reserved)
+	 [4-6]	SRC 		0 - Host
+	 					1 - Comm
+	 					2 - Device
+	 [7]				(reserved)
+	 [8-10]	DEST 		0 - Host
+	 					1 - Comm
+	 					2 - Device
+	 [11-15]			(reserved)
+	------------------------------------------------------
+
+
+3. Payload
+
+	
+				  Payload according to CODE
+	------------------------------------------------------
+	 Code    		Hex	#Bytes	Payload
+	------------------------------------------------------
+	 SEARCH			06	[0]
+	------------------------------------------------------
+	 READY			00	[0]
+	------------------------------------------------------
+	 ACK      		03  [1] 	Packet ID
+	                	[1] 	Packet code
+	                	[1] 	Ack type
+	                  		IF ack type is ERROR
+	                	[1]   	Error code
+	                	[1]   	Error argument
+	------------------------------------------------------
+	 INFO_QK  		03	[1]     Version MAJOR
+	 				  	[1]     Version MINOR
+	 				  	[2]     Version PATCH
+	 					[4]   	Baud rate
+	 					[4]  	Status flags
+	------------------------------------------------------
+	 INFO_BOARD		00	[2]		Firmware version
+	 					[20]	Board's name
+	------------------------------------------------------
+	 INFO_CONFIG	00	[1]		# of configurations
+	 						ARRAY BEGIN
+	 					[1]		Type
+	 					[20]	Label
+	 						IF type is BOOL
+	 					[1]		Value
+	 						IF type is INTHEX
+	 						IF type is INTDEC
+	 						IF type is FLOAT
+	 					[4]		Value
+	 					[4]		Minimum
+	 					[4]		Maximum
+	 						IF type is DATETIME
+	 					[1]		Year
+	 					[1]		Month
+	 					[1]		Day
+	 					[1]		Hours
+	 					[1]		Minutes
+	 					[1]		Seconds
+	 						IF type is TIME
+	 					[1]		Hours
+	 					[1]		Minutes
+	 					[1]		Seconds
+	 						ARRAY END
+	------------------------------------------------------
+	 INFO_SAMP		00	[4]		Sampling frequency (Hz)
+	 					[1]		Sampling mode
+	 					[1]		Trigger clock
+	 					[1]		Trigger scaler
+	 					[4]		Number of samples
+	------------------------------------------------------
+	 INFO_DATA		00	[1]		# of data
+	 					[1]		Type
+	 						ARRAY BEGIN
+	 					[20]	Label
+	 						ARRAY END
+	------------------------------------------------------
+	 INFO_EVENT		00	[1]		# of events
+	 						ARRAY BEGIN
+	 					[20]	Label
+	 						ARRAY END
+	------------------------------------------------------
+	 INFO_ACTION	00	[1]		# of actions
+	 						ARRAY BEGIN
+	 					[1]		Type
+	 					[20]	Label
+	 						IF type is INT
+	 					[4]		Minimum
+	 					[4]		Maximum
+	 					[4]		Value
+	 						IF type is BOOL
+	 					[1]		Value
+	 						ARRAY END
+	------------------------------------------------------
+	 DATA 			00	[1]		# of data
+	 					[1]		Type
+	  						ARRAY BEGIN
+	 					[4]		Value
+	 						ARRAY END
+	------------------------------------------------------
+	 EVENT 			00	[1]		ID
+	 					[1]		# or arguments
+	 						ARRAY BEGIN
+	 					[4]		Argument
+	 						ARRAY END
+	 					[*]		Message ('\0' terminated)
+	------------------------------------------------------
+	 STRING			00	[*]		Text ('\0' terminated)
+	------------------------------------------------------
+ 					
+4. Flow
+
+	Some examples:
+	(--> denotes data sent from host, and <-- data sent from a qkboard)
+
+		--> SEARCH
+		<-- INFO_QK
+		<-- INFO_BOARD
+		<-- INFO_CONFIG
+		<-- ...
+		<-- ACK
+
+		--> SET_ACTION
+		<-- ACK
+
+5. Byte stuffing
+
+	There are two special bytes: SEF (start/ending flag) and DLE (data link escape). The SEF is used to delimit a packet's data (including header and payload) and the DLE byte is used to escape a data byte so it's not erroneously parsed as a special byte. 
+
+	 Special byte 	Hex
+	--------------------
+	 SEF			55
+	 DLE 			DD 
+
+	To illustrate this, suppose you want to send the following packet:
+
+		[01] [02] [03]
+
+	To delimit the packet's data we use the SEF byte, so we get:
+
+		[55] [01] [02] [03] [55]
+
+	However, it may easily happen that the flag byte occurs in the data, such as in this packet:
+
+		[55] [01] [02] [55] [03] [55]
+
+	In this case, the second ``[05]`` will be erroneously interpreted as the end of the packet, so a DLE is inserted before it:
+
+		[55] [01] [02] [DD] [55] [03] [55]
+
+	The escape byte tells the receiver that the byte following it it's not a special byte. Hence, there are two bytes that must be escaped: SEF and DLE. This means that when DLE occurs in the packet's data it is also preceeded by the escape byte:
+
+		[55] [01] [02] [DD] [DD] [03] [55]
+
+	A byte stuffed packet is called a frame.
+
