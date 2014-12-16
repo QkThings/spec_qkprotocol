@@ -130,7 +130,7 @@
 	 				[4]	Maximum
 	 				[4]	Value
 	 					IF type is BOOL
-	 				[1]		Value
+	 				[1]	Value
 	 					ARRAY END
 	-------------------------------------------------------------
 	 DATA 			D0	[1]	# of data
@@ -152,6 +152,7 @@
 4. Flow
 
 	All packets sent from host to a qkboard must be acknowledged by an ACK packet.
+	The host may receive several packets until the ACK is received.
 	A host may receive packets asynchronously (without request).
 	
 	Some examples:
