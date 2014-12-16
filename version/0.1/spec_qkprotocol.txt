@@ -12,10 +12,14 @@
 
 	FLAGS[2] ID[1] CODE[1]
 	
-			    FLAGS bits
-	------------------------------------------------------
+	FLAGS:	control bits
+	ID:	request and response/ack packets must have the same ID
+	CODE:	identifies the content (payload) of the packet
+	
+			        FLAGS bits
+	-------------------------------------------------------------
 	 Bits	Name		Description
-	------------------------------------------------------
+	-------------------------------------------------------------
 	 [0] 			(reserved)
 	 [1]	LASTFRAG 	0 - Not the last fragment
 	 			1 - Last fragment (always 1 if FRAG=0) 
@@ -30,36 +34,34 @@
 	 			1 - Comm
 	 			2 - Device
 	 [11-15]		(reserved)
-	------------------------------------------------------
-
+	-------------------------------------------------------------
 
 3. Payload
-
 	
 		       Payload according to CODE
-	------------------------------------------------------
+	-------------------------------------------------------------
 	 Code    		Hex	#Bytes	Payload
-	------------------------------------------------------
+	-------------------------------------------------------------
 	 SEARCH			06	[0]
-	------------------------------------------------------
+	-------------------------------------------------------------
 	 READY			00	[0]
-	------------------------------------------------------
+	-------------------------------------------------------------
 	 ACK      		03  	[1] 	Packet ID
 	                		[1] 	Packet code
 	                		[1] 	Ack type
 	                  			IF ack type is ERROR
 	                		[1]   	Error code
 	                		[1]   	Error argument
-	------------------------------------------------------
+	-------------------------------------------------------------
 	 INFO_QK  		03	[1]     Version MAJOR
 	 				[1]     Version MINOR
 	 				[2]     Version PATCH
 	 				[4]   	Baud rate
 	 				[4]  	Status flags
-	------------------------------------------------------
+	-------------------------------------------------------------
 	 INFO_BOARD		00	[2]	Firmware version
 	 				[20]	Board's name
-	------------------------------------------------------
+	-------------------------------------------------------------
 	 INFO_CONFIG		00	[1]	# of configurations
 	 					ARRAY BEGIN
 	 				[1]	Type
@@ -71,69 +73,72 @@
 	 					IF type is FLOAT
 	 				[4]	Value
 	 				[4]	Minimum
-	 				[4]		Maximum
-	 						IF type is DATETIME
-	 					[1]		Year
-	 					[1]		Month
-	 					[1]		Day
-	 					[1]		Hours
-	 					[1]		Minutes
-	 					[1]		Seconds
-	 						IF type is TIME
-	 					[1]		Hours
-	 					[1]		Minutes
-	 					[1]		Seconds
-	 						ARRAY END
-	------------------------------------------------------
-	 INFO_SAMP		00	[4]		Sampling frequency (Hz)
-	 					[1]		Sampling mode
-	 					[1]		Trigger clock
-	 					[1]		Trigger scaler
-	 					[4]		Number of samples
-	------------------------------------------------------
-	 INFO_DATA		00	[1]		# of data
-	 					[1]		Type
-	 						ARRAY BEGIN
-	 					[20]	Label
-	 						ARRAY END
-	------------------------------------------------------
-	 INFO_EVENT		00	[1]		# of events
-	 						ARRAY BEGIN
-	 					[20]	Label
-	 						ARRAY END
-	------------------------------------------------------
-	 INFO_ACTION	00	[1]		# of actions
-	 						ARRAY BEGIN
-	 					[1]		Type
-	 					[20]	Label
-	 						IF type is INT
-	 					[4]		Minimum
-	 					[4]		Maximum
-	 					[4]		Value
-	 						IF type is BOOL
-	 					[1]		Value
-	 						ARRAY END
-	------------------------------------------------------
-	 DATA 			00	[1]		# of data
-	 					[1]		Type
-	  						ARRAY BEGIN
-	 					[4]		Value
-	 						ARRAY END
-	------------------------------------------------------
-	 EVENT 			00	[1]		ID
-	 					[1]		# or arguments
-	 						ARRAY BEGIN
-	 					[4]		Argument
-	 						ARRAY END
-	 					[*]		Message ('\0' terminated)
-	------------------------------------------------------
-	 STRING			00	[*]		Text ('\0' terminated)
-	------------------------------------------------------
+	 				[4]	Maximum
+	 					IF type is DATETIME
+	 				[1]	Year
+	 				[1]	Month
+	 				[1]	Day
+	 				[1]	Hours
+	 				[1]	Minutes
+	 				[1]	Seconds
+	 					IF type is TIME
+	 				[1]	Hours
+	 				[1]	Minutes
+	 				[1]	Seconds
+	 					ARRAY END
+	-------------------------------------------------------------
+	 INFO_SAMP		00	[4]	Sampling frequency (Hz)
+	 				[1]	Sampling mode
+	 				[1]	Trigger clock
+	 				[1]	Trigger scaler
+	 				[4]	Number of samples
+	-------------------------------------------------------------
+	 INFO_DATA		00	[1]	# of data
+	 				[1]	Type
+	 					ARRAY BEGIN
+	 				[20]	Label
+	 					ARRAY END
+	-------------------------------------------------------------
+	 INFO_EVENT		00	[1]	# of events
+	 					ARRAY BEGIN
+	 				[20]	Label
+	 					ARRAY END
+	-------------------------------------------------------------
+	 INFO_ACTION		00	[1]	# of actions
+	 					ARRAY BEGIN
+	 				[1]	Type
+	 				[20]	Label
+	 					IF type is INT
+	 				[4]	Minimum
+	 				[4]	Maximum
+	 				[4]	Value
+	 					IF type is BOOL
+	 				[1]		Value
+	 					ARRAY END
+	-------------------------------------------------------------
+	 DATA 			00	[1]	# of data
+	 				[1]	Type
+	  					ARRAY BEGIN
+	 				[4]	Value
+	 					ARRAY END
+	-------------------------------------------------------------
+	 EVENT 			00	[1]	ID
+	 				[1]	# or arguments
+	 					ARRAY BEGIN
+	 				[4]	Argument
+	 					ARRAY END
+	 				[*]	Message ('\0' terminated)
+	-------------------------------------------------------------
+	 STRING			00	[*]	Text ('\0' terminated)
+	-------------------------------------------------------------
  					
 4. Flow
 
+	All packets sent from host to a qkboard must be acknowledged by an ACK packet.
+	A host may receive packets asynchronously (without request).
+	
 	Some examples:
-	(--> denotes data sent from host, and <-- data sent from a qkboard)
+	(--> denotes a packet sent from host, and <-- a packet sent from a qkboard)
 
 		--> SEARCH
 		<-- INFO_QK
@@ -144,6 +149,9 @@
 
 		--> SET_ACTION
 		<-- ACK
+		
+		<-- DATA
+		<-- EVENT
 
 5. Byte stuffing
 
@@ -151,8 +159,8 @@
 
 	 Special byte 	Hex
 	--------------------
-	 SEF			55
-	 DLE 			DD 
+	 SEF		55
+	 DLE 		DD 
 
 	To illustrate this, suppose you want to send the following packet:
 
