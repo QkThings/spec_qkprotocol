@@ -12,31 +12,31 @@
 
 	FLAGS[2] ID[1] CODE[1]
 	
-						 FLAGS bits
+			    FLAGS bits
 	------------------------------------------------------
 	 Bits	Name		Description
 	------------------------------------------------------
-	 [0] 				(reserved)
+	 [0] 			(reserved)
 	 [1]	LASTFRAG 	0 - Not the last fragment
-	 				 	1 - Last fragment (always 1 if FRAG=0) 
+	 			1 - Last fragment (always 1 if FRAG=0) 
 	 [2]	FRAG 		0 - Not fragmented
-	 					1 - Fragmented
-	 [3]				(reserved)
+	 			1 - Fragmented
+	 [3]			(reserved)
 	 [4-6]	SRC 		0 - Host
-	 					1 - Comm
-	 					2 - Device
-	 [7]				(reserved)
+	 			1 - Comm
+	 			2 - Device
+	 [7]			(reserved)
 	 [8-10]	DEST 		0 - Host
-	 					1 - Comm
-	 					2 - Device
-	 [11-15]			(reserved)
+	 			1 - Comm
+	 			2 - Device
+	 [11-15]		(reserved)
 	------------------------------------------------------
 
 
 3. Payload
 
 	
-				  Payload according to CODE
+		       Payload according to CODE
 	------------------------------------------------------
 	 Code    		Hex	#Bytes	Payload
 	------------------------------------------------------
@@ -44,34 +44,34 @@
 	------------------------------------------------------
 	 READY			00	[0]
 	------------------------------------------------------
-	 ACK      		03  [1] 	Packet ID
-	                	[1] 	Packet code
-	                	[1] 	Ack type
-	                  		IF ack type is ERROR
-	                	[1]   	Error code
-	                	[1]   	Error argument
+	 ACK      		03  	[1] 	Packet ID
+	                		[1] 	Packet code
+	                		[1] 	Ack type
+	                  			IF ack type is ERROR
+	                		[1]   	Error code
+	                		[1]   	Error argument
 	------------------------------------------------------
 	 INFO_QK  		03	[1]     Version MAJOR
-	 				  	[1]     Version MINOR
-	 				  	[2]     Version PATCH
-	 					[4]   	Baud rate
-	 					[4]  	Status flags
+	 				[1]     Version MINOR
+	 				[2]     Version PATCH
+	 				[4]   	Baud rate
+	 				[4]  	Status flags
 	------------------------------------------------------
-	 INFO_BOARD		00	[2]		Firmware version
-	 					[20]	Board's name
+	 INFO_BOARD		00	[2]	Firmware version
+	 				[20]	Board's name
 	------------------------------------------------------
-	 INFO_CONFIG	00	[1]		# of configurations
-	 						ARRAY BEGIN
-	 					[1]		Type
-	 					[20]	Label
-	 						IF type is BOOL
-	 					[1]		Value
-	 						IF type is INTHEX
-	 						IF type is INTDEC
-	 						IF type is FLOAT
-	 					[4]		Value
-	 					[4]		Minimum
-	 					[4]		Maximum
+	 INFO_CONFIG		00	[1]	# of configurations
+	 					ARRAY BEGIN
+	 				[1]	Type
+	 				[20]	Label
+	 					IF type is BOOL
+	 				[1]	Value
+	 					IF type is INTHEX
+	 					IF type is INTDEC
+	 					IF type is FLOAT
+	 				[4]	Value
+	 				[4]	Minimum
+	 				[4]		Maximum
 	 						IF type is DATETIME
 	 					[1]		Year
 	 					[1]		Month
