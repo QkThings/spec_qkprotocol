@@ -155,7 +155,9 @@
 
 5. Byte stuffing
 
-	There are two special bytes: SEF (start/ending flag) and DLE (data link escape). The SEF is used to delimit a packet's data (including header and payload) and the DLE byte is used to escape a data byte so it's not erroneously parsed as a special byte. 
+	There are two special bytes: SEF (start/ending flag) and DLE (data link escape).
+	The SEF is used to delimit a packet's data (including header and payload) and the DLE byte
+	is used to escape a data byte so it's not erroneously parsed as a special byte. 
 
 	 Special byte 	Hex
 	--------------------
@@ -174,11 +176,14 @@
 
 		[55] [01] [02] [55] [03] [55]
 
-	In this case, the second [05] will be erroneously interpreted as the end of the packet, so a DLE is inserted before it:
+	In this case, the second [05] will be erroneously interpreted as the end of the packet, so 
+	a DLE is inserted before it:
 
 		[55] [01] [02] [DD] [55] [03] [55]
 
-	The escape byte tells the receiver that the byte following it it's not a special byte. Hence, there are two bytes that must be escaped: SEF and DLE. This means that when DLE occurs in the packet's data it is also preceeded by the escape byte:
+	The escape byte tells the receiver that the byte following it it's not a special byte. Hence,
+	there are two bytes that must be escaped: SEF and DLE. This means that when DLE occurs in the
+	packet's data it is also preceeded by the escape byte:
 
 		[55] [01] [02] [DD] [DD] [03] [55]
 
