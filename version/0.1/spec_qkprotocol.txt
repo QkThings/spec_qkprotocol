@@ -1,5 +1,5 @@
 =====================================================================
- QkProtocol specification (version 0.1-DRAFT) | qkthings.com
+	QkProtocol specification (version 0.1-DRAFT) | qkthings.com
 =====================================================================
 
 1. Packet structure
@@ -166,7 +166,7 @@
 
 		[55] [01] [02] [55] [03] [55]
 
-	In this case, the second ``[05]`` will be erroneously interpreted as the end of the packet, so a DLE is inserted before it:
+	In this case, the second [05] will be erroneously interpreted as the end of the packet, so a DLE is inserted before it:
 
 		[55] [01] [02] [DD] [55] [03] [55]
 
