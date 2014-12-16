@@ -42,10 +42,6 @@
 	-------------------------------------------------------------
 	 Code    		Hex	#Bytes	Payload
 	-------------------------------------------------------------
-	 SEARCH			06	[0]
-	-------------------------------------------------------------
-	 READY			00	[0]
-	-------------------------------------------------------------
 	 ACK      		03  	[1] 	Packet ID
 	                		[1] 	Packet code
 	                		[1] 	Ack type
@@ -53,16 +49,37 @@
 	                		[1]   	Error code
 	                		[1]   	Error argument
 	-------------------------------------------------------------
-	 INFO_QK  		03	[1]     Version MAJOR
+	 SEARCH			06	[0]
+	-------------------------------------------------------------
+	 READY			0D	[0]
+	-------------------------------------------------------------
+	 START			0A	[0]
+	-------------------------------------------------------------
+	 STOP			0F	[0]
+	-------------------------------------------------------------
+	 SET_SAMP		36	[4]	Sampling frequency (Hz)
+	 				[1]	Sampling mode
+	 				[1]	Trigger clock
+	 				[1]	Trigger scaler
+	 				[4]	Number of samples	
+	-------------------------------------------------------------
+	 SET_ACTION		3A	[1]	ID
+	 				[1]	Type
+	 					IF type is INT
+	 				[4]	Value
+	 					IF type is BOOL
+	 				[1]	Value
+	-------------------------------------------------------------
+	 INFO_QK  		B1	[1]     Version MAJOR
 	 				[1]     Version MINOR
 	 				[2]     Version PATCH
 	 				[4]   	Baud rate
 	 				[4]  	Status flags
 	-------------------------------------------------------------
-	 INFO_BOARD		00	[2]	Firmware version
+	 INFO_BOARD		B5	[2]	Firmware version
 	 				[20]	Board's name
 	-------------------------------------------------------------
-	 INFO_CONFIG		00	[1]	# of configurations
+	 INFO_CONFIG		BC	[1]	# of configurations
 	 					ARRAY BEGIN
 	 				[1]	Type
 	 				[20]	Label
@@ -87,24 +104,24 @@
 	 				[1]	Seconds
 	 					ARRAY END
 	-------------------------------------------------------------
-	 INFO_SAMP		00	[4]	Sampling frequency (Hz)
+	 INFO_SAMP		B2	[4]	Sampling frequency (Hz)
 	 				[1]	Sampling mode
 	 				[1]	Trigger clock
 	 				[1]	Trigger scaler
 	 				[4]	Number of samples
 	-------------------------------------------------------------
-	 INFO_DATA		00	[1]	# of data
+	 INFO_DATA		BD	[1]	# of data
 	 				[1]	Type
 	 					ARRAY BEGIN
 	 				[20]	Label
 	 					ARRAY END
 	-------------------------------------------------------------
-	 INFO_EVENT		00	[1]	# of events
+	 INFO_EVENT		BE	[1]	# of events
 	 					ARRAY BEGIN
 	 				[20]	Label
 	 					ARRAY END
 	-------------------------------------------------------------
-	 INFO_ACTION		00	[1]	# of actions
+	 INFO_ACTION		BA	[1]	# of actions
 	 					ARRAY BEGIN
 	 				[1]	Type
 	 				[20]	Label
@@ -116,20 +133,20 @@
 	 				[1]		Value
 	 					ARRAY END
 	-------------------------------------------------------------
-	 DATA 			00	[1]	# of data
+	 DATA 			D0	[1]	# of data
 	 				[1]	Type
 	  					ARRAY BEGIN
 	 				[4]	Value
 	 					ARRAY END
 	-------------------------------------------------------------
-	 EVENT 			00	[1]	ID
+	 EVENT 			DE	[1]	ID
 	 				[1]	# or arguments
 	 					ARRAY BEGIN
 	 				[4]	Argument
 	 					ARRAY END
 	 				[*]	Message ('\0' terminated)
 	-------------------------------------------------------------
-	 STRING			00	[*]	Text ('\0' terminated)
+	 STRING			DF	[*]	Text ('\0' terminated)
 	-------------------------------------------------------------
  					
 4. Flow
